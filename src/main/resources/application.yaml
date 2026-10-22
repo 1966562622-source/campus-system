@@ -10,3 +10,8 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 7200000
+
+
