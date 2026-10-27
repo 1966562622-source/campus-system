@@ -59,4 +59,11 @@ public class GlobalExceptionHandler {
                 .body(Result.error(401,"用户名或密码错误"));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Result<?>> handleIllegalArgumentException(IllegalArgumentException e){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Result.error(400,e.getMessage()));
+    }
+
 }

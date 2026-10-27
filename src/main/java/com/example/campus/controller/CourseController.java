@@ -53,10 +53,15 @@ public class CourseController {
 
     @GetMapping("/page")
     public Result<IPage<CourseVO>> listCoursesBypage(
-            @RequestParam(defaultValue = "1") long current,
-            @RequestParam(defaultValue = "10") long size,
+            @RequestParam(defaultValue = "1") @Min(value = 1,message = "当前页必须大于等于0")
+            long current,
+            @RequestParam(defaultValue = "10") @Min(value = 1,message = "每页数量不需大于0")
+            long size,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String teacher){
+        if (size>100){
+            throw new IllegalArgumentException("每页最大查询100条记录");
+        }
         return Result.success(courseService.listCoursesByPage(current,size,name,teacher));
     }
     @GetMapping("/{courseId}/students")

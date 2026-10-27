@@ -9,20 +9,25 @@ import com.example.campus.mapper.CourseMapper;
 import com.example.campus.mapper.StudentCourseMapper;
 import com.example.campus.mapper.StudentMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 @Slf4j
 @Service
 public class StudentCourseService {
     private final StudentMapper studentMapper;
     private  final CourseMapper courseMapper;
     private final StudentCourseMapper studentCourseMapper;
+    private final StringRedisTemplate redisTemplate;
 
-    public StudentCourseService(StudentMapper studentMapper, CourseMapper courseMapper, StudentCourseMapper studentCourseMapper) {
+    public StudentCourseService(StudentMapper studentMapper, CourseMapper courseMapper, StudentCourseMapper studentCourseMapper, StringRedisTemplate redisTemplate) {
         this.studentMapper = studentMapper;
         this.courseMapper = courseMapper;
         this.studentCourseMapper = studentCourseMapper;
+        this.redisTemplate = redisTemplate;
     }
+
     @Transactional(rollbackFor = Exception.class)
     public  void selectCourse(Long studentId,Long courseId){
 
@@ -56,7 +61,10 @@ public class StudentCourseService {
         studentCourse.setStudentId(studentId);
         studentCourse.setCourseId(courseId);
         studentCourseMapper.insert(studentCourse);
+        redisTemplate.delete("course:"+courseId+":students");
         log.info("学生选课成功，studentId={},courseId={}",studentId,courseId);
+
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -78,6 +86,8 @@ public class StudentCourseService {
             throw new BusinessException("该学生尚未选择这门课程，无法取消");
         }
         studentCourseMapper.deleteById(studentCourse.getId());
+
+        redisTemplate.delete("course:"+courseId+":students");
         log.info("学生取消选课成功:studentId={},courseId={}",studentId,courseId);
     }
 
